@@ -1,7 +1,7 @@
 BX.ready(function () {
   const formComponentClass = {
     start: function () {
-      formComponentClass.send()
+      formComponentClass.send();
     },
     send: function () {
       BX.bind(BX('form'), 'submit', BX.proxy(function (event) {
@@ -12,15 +12,15 @@ BX.ready(function () {
           {
             mode: 'class',
             data: new FormData(event.srcElement)
-          }).then(function (){
-
-        }).catch()
+          }).then(response => {
+          console.log(response)
+        }).catch(error => {
+          console.log(error)
+        })
         event.submitter.removeAttribute('disabled', '')
         return BX.PreventDefault(event);
-      }))
-
+      }));
     },
   }
-
   formComponentClass.start()
 })

@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
 
@@ -13,7 +14,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 
-if (! defined("B_PROLOG_INCLUDED") or B_PROLOG_INCLUDED !== true or ! Loader::includeModule("iblock")) {
+if (!defined("B_PROLOG_INCLUDED") or B_PROLOG_INCLUDED !== true or !Loader::includeModule("iblock")) {
     die();
 }
 
@@ -40,7 +41,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
     {
         return [
             'check' => [
-                'prefilters' => [
+                'prefilters'  => [
                     new ActionFilter\HttpMethod(
                         [
                             ActionFilter\HttpMethod::METHOD_POST,
@@ -62,8 +63,34 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         return $this->errorCollection->getErrorByCode($code);
     }
 
+    protected function classVariablesSeparate(string $data)
+    {
+        $data =  explode("public", $data)[1];
+        $answer = [];
+        foreach ($data as $item)
+        {
+
+        }
+        return $data;
+    }
+
     public function checkAction()
     {
-        return $this->request->getPostList();
+        $data = explode('class', $this->request->getPost('code'));
+        $answer = [];
+        foreach ($data as &$item) {
+            if (!mb_strripos($item, 'include')) {
+                $item = str_replace("\r\n", NULL, trim($item));
+                $answer[] = [
+                    'className'      => reset(explode(' ', $item)),
+                    'classVariables' => 'test',
+//                    'classVariables' => $this->classVariablesSeparate($item),
+                    'classMethods'   => 'test',
+                    'classBody'      => $item,
+                ];
+            }
+        }
+
+        return $answer;
     }
 }
