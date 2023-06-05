@@ -12,7 +12,7 @@
     <div class="answer">
         <b>Результат кода:</b>
         <br>
-        <textarea name="code" rows="30" cols="60"></textarea>
+        <textarea id = 'result' name="code" rows="30" cols="60"></textarea>
     </div>
 
 </div>
