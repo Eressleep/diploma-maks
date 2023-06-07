@@ -110,47 +110,30 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
     {
         //B() :m_z(5, 10)
         $classNames = array_map(fn($item) => $item['name'], $parseData);
-        foreach ($parseData as &$item)
-        {
-            foreach ($item['variables'] as &$val)
-            {
-                $tmp =explode(' ', $val);
-                if( in_array($tmp[0], $classNames))
-                {
+        foreach ($parseData as &$item) {
+            foreach ($item['variables'] as &$val) {
+                $tmp = explode(' ', $val);
+                if (in_array($tmp[0], $classNames)) {
                     $val = $tmp;
-                    preg_match('~'.$tmp[1].' .*?(.*?);~is', $item['class'], $stringToDel);
+                    preg_match('~' . $tmp[1] . ' .*?(.*?);~is', $item['class'], $stringToDel);
                     $val = $stringToDel[0];
 
-
-
-                    $optimazeCode = str_replace(' ','', $val);
-                    $optimazeCode = str_replace('=','', $optimazeCode);
-                    $optimazeCode = str_replace($tmp[0],'', $optimazeCode);
-                    $optimazeCode = str_replace(';','', $optimazeCode);
-
+                    $optimazeCode = str_replace(' ', '', $val);
+                    $optimazeCode = str_replace('=', '', $optimazeCode);
+                    $optimazeCode = str_replace($tmp[0], '', $optimazeCode);
+                    $optimazeCode = str_replace(';', '', $optimazeCode);
 
                     $revClass = $item['class'];
-                    $revClass = str_replace(') {', '):'.$optimazeCode.'{', $revClass);
+                    $revClass = str_replace(') {', '):' . $optimazeCode . '{', $revClass);
                     $data = str_replace($item['class'], $revClass, $data);
-                    $data = str_replace($val,'', $data);
-
-
-
-
-
-
-
-                }else{
+                    $data = str_replace($val, '', $data);
+                } else {
                     $val = false;
                 }
             }
         }
 
-
-
-
         return $data;
-        return $parseData;
     }
 
     public function checkAction()
