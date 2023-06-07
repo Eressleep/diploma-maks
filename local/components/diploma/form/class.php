@@ -108,63 +108,49 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
 
     protected function optimizeCode($data, $parseData)
     {
-        $out = [];
+        //B() :m_z(5, 10)
         $classNames = array_map(fn($item) => $item['name'], $parseData);
-        foreach ($parseData as $item) {
-            foreach ($item['variables'] as $val) {
-                $tmp = explode(' ', $val);
-                if (in_array($tmp[0], $classNames)) {
-                    $out[] = [
-                        'valName' => $tmp[1],
-                        'className' => $item['name'],
-                        'classNameToDel' => $tmp[0],
-                    ];
-                }
-            }
-        }
-        $answer = [];
-        foreach ($out as $item)
+        foreach ($parseData as &$item)
         {
-            preg_match('~class '.$item['className'].' .*?(.*?)};~is', $data, $match);
-            $tmp = explode("\n", $match[0]);
-            foreach ($tmp as $tm)
+            foreach ($item['variables'] as &$val)
             {
-                if(strripos($tm,$item['className'].'(')){
-                    preg_match('/\{\s*(?P<str>[^}]+?)\s*\}/', $tm, $test);
-                    $tmp1 = str_replace(';',',-', $test[1]);
-                    $tmp1 = substr($tmp1,0,-1);
-                    $tmp1 = str_replace('=','', $tmp1);
-                    $tmp1 = str_replace('','', $tmp1);
-                    $tmp1 = str_replace($item['classNameToDel'],'', $tmp1);
-                    $tmp1 = explode('-', $tmp1);
-                    foreach ($tmp1 as &$tmp2)
-                    {
+                $tmp =explode(' ', $val);
+                if( in_array($tmp[0], $classNames))
+                {
+                    $val = $tmp;
+                    preg_match('~'.$tmp[1].' .*?(.*?);~is', $item['class'], $stringToDel);
+                    $val = $stringToDel[0];
 
-                        if( !strripos( $tmp2,'('))
-                            {
-                                $tmp2 = trim($tmp2);
-                                $tmp2 = array_values(array_diff(explode(' ', $tmp2),['']));
-                                $tmp2[1] = '('.$tmp2[1].')';
-                                $tmp2 = implode('',$tmp2);
-                                $tmp2 = str_replace(',', '', $tmp2);
-                            }
-                    }
-                    $tmp1 = implode('', $tmp1);
-                    $tmp1 = str_replace(' ', '', $tmp1 );
-                    $answer[] = [
-                        'a' => $test[1],
-                        'b' => $tmp1,
-                        'c' => $item,
-                    ];
-                    $data = str_replace($test[1], '', $data);
-                    $data = str_replace($item['className'].'()', $item['className'].':()'. $tmp1, $data);
+
+
+                    $optimazeCode = str_replace(' ','', $val);
+                    $optimazeCode = str_replace('=','', $optimazeCode);
+                    $optimazeCode = str_replace($tmp[0],'', $optimazeCode);
+                    $optimazeCode = str_replace(';','', $optimazeCode);
+
+
+                    $revClass = $item['class'];
+                    $revClass = str_replace(') {', '):'.$optimazeCode.'{', $revClass);
+                    $data = str_replace($item['class'], $revClass, $data);
+                    $data = str_replace($val,'', $data);
+
+
+
+
+
+
+
+                }else{
+                    $val = false;
                 }
             }
         }
+
 
 
 
         return $data;
+        return $parseData;
     }
 
     public function checkAction()
@@ -174,7 +160,6 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         $dataParse = $this->getVariablesFromString($dataParse);
         $out = $this->optimizeCode($data, $dataParse);
 
-//        return $dataParse;
         return $out;
     }
 }

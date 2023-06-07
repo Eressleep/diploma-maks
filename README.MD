@@ -43,3 +43,4 @@ int main() {
     std::cout << q.m_k;
 }
 ```
+//B() :, m_k(0) {}
