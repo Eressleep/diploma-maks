@@ -5,14 +5,37 @@
     <form id="form">
         <b>Введите ваш код:</b>
         <br>
-        <textarea name="code" rows="30" cols="60"></textarea>
+        <textarea name="code" rows="25" cols="40"></textarea>
         <br>
         <input type="submit" value="Отправить">
     </form>
     <div class="answer">
         <b>Результат кода:</b>
         <br>
-        <textarea id = 'result' name="code" rows="30" cols="60"></textarea>
+        <textarea id = 'result' name="code" rows="25" cols="40"></textarea>
     </div>
-
+    <div class="answer-optimize">
+        <br>
+        <div>Количество классов :</div>
+        <input
+            id="class-count"
+            class="answer-copies-input"
+            type="text"
+            readonly="readonly"
+        >
+        <div>Количество экземпляров i-го класса, используемых в программе :</div>
+        <input
+            id="class-copies"
+            class="answer-optimize-input"
+            type="text"
+            readonly="readonly"
+        >
+        <div>Количество переменных в составе i-го класса :</div>
+        <input
+            id="class-composition"
+            class="answer-optimize-input"
+            type="text"
+            readonly="readonly"
+        >
+    </div>
 </div>

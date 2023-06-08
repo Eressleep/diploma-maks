@@ -16,7 +16,11 @@ BX.ready(function () {
                         data: new FormData(event.srcElement),
                     }).then(response => {
                     if (response.status === 'success') {
-                        resultTextArea.value = response.data;
+                        resultTextArea.value = response.data.optimazeCode;
+                        BX('class-count').value = response.data.optimazeData.classCount;
+                        BX('class-copies').value = response.data.optimazeData.classOptimize;
+                        BX('class-composition').value = response.data.optimazeData.classComposition;
+                        console.log(response.data.optimazeData)
                     }
                 }).catch(error => {
                     Object.values(error.errors).forEach(val => {

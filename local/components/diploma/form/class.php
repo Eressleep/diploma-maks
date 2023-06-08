@@ -136,6 +136,41 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         return $data;
     }
 
+    protected function optimizeData($data)
+    {
+        $class = array_map(fn($item) => $item['name'], $data);
+        $classCopies = [];
+        foreach ($data as $key => $item) {
+            $classCopies[] = $key . '->' . $item['name'] . '-' . count(array_map(fn($tmp) => $tmp, $item['variables']));
+        }
+        $classOptimize = [];
+        foreach ($data as $key => $item) {
+            foreach ($item['variables'] as $val) {
+                $tmp = explode(' ', $val);
+                $classOptimize[$item['name']]['name'] = $key;
+
+                if (in_array($tmp[0], $class)) {
+                    $classOptimize[$item['name']]['cnt'][] = $tmp[0];
+                }
+            }
+        }
+        $classTest = [];
+        foreach ($classOptimize as $key => $item) {
+            $classTest[] = implode(' ',
+                [
+                    $key,
+                    $item['name'],
+                    'count =',
+                    isset($item['cnt']) ? count($item['cnt']) : 0
+                ]);
+        }
+        return [
+            'classCount' => count($class),
+            'classOptimize' => implode('---', $classTest),
+            'classComposition' => implode(' ', $classCopies),
+        ];
+    }
+
     public function checkAction()
     {
         $data = $this->validataFormData();
@@ -143,6 +178,9 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         $dataParse = $this->getVariablesFromString($dataParse);
         $out = $this->optimizeCode($data, $dataParse);
 
-        return $out;
+        return [
+            'optimazeCode' => $out,
+            'optimazeData' => $this->optimizeData($dataParse),
+        ];
     }
 }
