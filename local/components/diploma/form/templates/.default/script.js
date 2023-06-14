@@ -20,7 +20,7 @@ BX.ready(function () {
                         BX('class-count').value = response.data.optimazeData.classCount;
                         BX('class-copies').value = response.data.optimazeData.classOptimize;
                         BX('class-composition').value = response.data.optimazeData.classComposition;
-                        console.log(response.data.optimazeData)
+                        BX('class-time').value = response.data.optimazeTime;
                     }
                 }).catch(error => {
                     Object.values(error.errors).forEach(val => {

@@ -19,7 +19,7 @@
         <div>Количество классов :</div>
         <input
             id="class-count"
-            class="answer-copies-input"
+            class="answer-optimize-input"
             type="text"
             readonly="readonly"
         >
@@ -35,6 +35,13 @@
             id="class-composition"
             class="answer-optimize-input"
             type="text"
+            readonly="readonly"
+        >
+        <div>Время выполнения программы :</div>
+        <input
+            id="class-time"
+            class="answer-optimize-input"
+            type="number"
             readonly="readonly"
         >
     </div>

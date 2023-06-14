@@ -173,6 +173,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
 
     public function checkAction()
     {
+        $start = microtime(true);
         $data = $this->validataFormData();
         $dataParse = $this->getClassFromString($data);
         $dataParse = $this->getVariablesFromString($dataParse);
@@ -181,6 +182,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         return [
             'optimazeCode' => $out,
             'optimazeData' => $this->optimizeData($dataParse),
+            'optimazeTime' => microtime(true) - $start,
         ];
     }
 }
