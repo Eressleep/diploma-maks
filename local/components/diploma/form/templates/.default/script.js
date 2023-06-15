@@ -2,6 +2,17 @@ BX.ready(function () {
     const formComponentClass = {
         start: function () {
             formComponentClass.send();
+            formComponentClass.selectAlgorithmMethod();
+        },
+        selectAlgorithmMethod : function () {
+            let oldMethod = BX('oldMethod');
+            let newMethod = BX('newMethod');
+            BX.bind(oldMethod, 'click', BX.proxy(function (event){
+                newMethod.checked = false;
+            }));
+            BX.bind(newMethod, 'click', BX.proxy(function (event){
+                oldMethod.checked = false;
+            }));
         },
         send: function () {
             BX.bind(BX('form'), 'submit', BX.proxy(function (event) {

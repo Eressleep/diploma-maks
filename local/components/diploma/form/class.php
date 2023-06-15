@@ -1,21 +1,16 @@
 <?php
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\UI\Extension;
 
-use Bitrix\Iblock\ElementPropertyTable;
-use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\Contract\Controllerable;
-use Bitrix\Main\Entity\Query;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\LoaderException;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ObjectPropertyException;
-use Bitrix\Main\SystemException;
 
-if (!defined("B_PROLOG_INCLUDED") or B_PROLOG_INCLUDED !== true or !Loader::includeModule("iblock")) {
-    die();
+try {
+    if (!defined("B_PROLOG_INCLUDED") or B_PROLOG_INCLUDED !== true or !Loader::includeModule("iblock")) {
+        die();
+    }
+} catch (LoaderException $e) {
 }
 
 class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Errorable
@@ -23,6 +18,10 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
 
     protected object $errorCollection;
     protected object $errors;
+    protected array|string $data;
+    protected array|string $dataParse;
+    protected string|array|null $out = null;
+    protected array|string|null  $optimizeData = null;
 
     public function onPrepareComponentParams($arParams): array
     {
@@ -36,7 +35,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         $this->includeComponentTemplate();
     }
 
-    public function configureActions()
+    public function configureActions(): array
     {
         return [
             'check' => [
@@ -46,20 +45,17 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         ];
     }
 
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errorCollection->toArray();
     }
 
-    public function getErrorByCode($code)
+    public function getErrorByCode($code): \Bitrix\Main\Error
     {
         return $this->errorCollection->getErrorByCode($code);
     }
 
-    protected function classVariablesSeparate(string $data)
-    {
-        return $data;
-    }
+
 
     protected function validataFormData()
     {
@@ -136,7 +132,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         return $data;
     }
 
-    protected function optimizeData($data)
+    protected function optimizeData($data): array
     {
         $class = array_map(fn($item) => $item['name'], $data);
         $classCopies = [];
@@ -171,18 +167,26 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
         ];
     }
 
-    public function checkAction()
+    public function checkAction() : array
     {
-        $start = microtime(true);
-        $data = $this->validataFormData();
-        $dataParse = $this->getClassFromString($data);
-        $dataParse = $this->getVariablesFromString($dataParse);
-        $out = $this->optimizeCode($data, $dataParse);
+        $start = getmicrotime();
+        $this->data = $this->validataFormData();
+
+        if( $this->request->getPost('oldMethod'))
+        {
+
+            $this->dataParse = $this->getClassFromString($this->data);
+            $this->dataParse = $this->getVariablesFromString($this->dataParse);
+            $this->out = $this->optimizeCode($this->data, $this->dataParse );
+            $this->optimizeData = $this->optimizeData($this->dataParse);
+        }else{
+            echo 'test';
+        }
 
         return [
-            'optimazeCode' => $out,
-            'optimazeData' => $this->optimizeData($dataParse),
-            'optimazeTime' => microtime(true) - $start,
+            'optimazeCode' => is_string($this->out) ? $this->out : false,
+            'optimazeData' => is_array($this->optimizeData) ? $this->optimizeData : false,
+            'optimazeTime' => getmicrotime() - $start,
         ];
     }
 }
