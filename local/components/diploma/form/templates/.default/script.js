@@ -3,6 +3,7 @@ BX.ready(function () {
         start: function () {
             formComponentClass.send();
             formComponentClass.selectAlgorithmMethod();
+            formComponentClass.hideLicence();
         },
         selectAlgorithmMethod : function () {
             let oldMethod = BX('oldMethod');
@@ -42,6 +43,9 @@ BX.ready(function () {
                 return BX.PreventDefault(event);
             }));
         },
+        hideLicence : function (){
+            document.getElementsByClassName('tablebodytext')[0].remove()
+        }
 
     }
     formComponentClass.start();

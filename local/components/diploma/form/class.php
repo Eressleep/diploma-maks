@@ -104,7 +104,6 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
 
     protected function optimizeCode($data, $parseData)
     {
-        //B() :m_z(5, 10)
         $classNames = array_map(fn($item) => $item['name'], $parseData);
         foreach ($parseData as &$item) {
             foreach ($item['variables'] as &$val) {
@@ -131,6 +130,64 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
 
         return $data;
     }
+    protected function enterClass($className)
+    {
+        return
+            'template <class '.$className.'>
+    class Creator
+    {
+        public:
+          int m_ind;
+          static std:: vector <'.$className.'> m_Cache;
+          void setsize(int sz)
+          {
+            m_Cache.resize(sz);
+            memset(m_Cache.data(),0,sizeof(A)*sz);
+          }
+          Creator::Creator():m_ind(0)
+          {
+          }
+          static '.$className.' & CreateNew()
+          {
+           if (ind m_Cache.size)
+           {
+            m_Cache.resize(m_Cache.size()*2);
+            memset(m_Cache.data,0,sizeof(A));
+           }
+          ind++;
+          return m_Cache [ind];
+        }';
+}
+
+
+    protected function optimizeCodeVersion2($data, $parseData){
+        $classNames = array_map(fn($item) => $item['name'], $parseData);
+        $str = '#include"iostream'.PHP_EOL.'#include<vector>'.PHP_EOL;
+
+        foreach ($parseData as &$item) {
+            foreach ($item['variables'] as &$val) {
+                $tmp = explode(' ', $val);
+                if (in_array($tmp[0], $classNames)) {
+                    $val = $tmp;
+                    preg_match('~' . $tmp[1] . ' .*?(.*?);~is', $item['class'], $stringToDel);
+                    $val = $stringToDel[0];
+
+                    preg_match(';.*()(.*?)};', $item['class'], $stringToDel);
+                    $revClass = $item['class'];
+                    $revClass = str_replace($stringToDel[0], '', $revClass);
+                    $data = str_replace($item['class'], $revClass, $data);
+                    $str .= PHP_EOL.$this->enterClass($item['name']);
+
+
+                } else {
+                    $val = false;
+                }
+            }
+        }
+        $data = str_replace('#include"iostream"', $str, $data);
+        return $data;
+    }
+
 
     protected function optimizeData($data): array
     {
@@ -170,6 +227,7 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
     public function checkAction() : array
     {
         $start = getmicrotime();
+
         $this->data = $this->validataFormData();
 
         if( $this->request->getPost('oldMethod'))
@@ -180,7 +238,11 @@ class Form extends CBitrixComponent implements Controllerable, Bitrix\Main\Error
             $this->out = $this->optimizeCode($this->data, $this->dataParse );
             $this->optimizeData = $this->optimizeData($this->dataParse);
         }else{
-            echo 'test';
+            $this->dataParse = $this->getClassFromString($this->data);
+            $this->dataParse = $this->getVariablesFromString($this->dataParse);
+            $this->out = $this->optimizeCodeVersion2($this->data, $this->dataParse );
+            $this->optimizeData = $this->optimizeData($this->dataParse);
+
         }
 
         return [
